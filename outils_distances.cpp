@@ -93,7 +93,7 @@ void confusionnormalisee(int TConf[MAXCL][MAXCL], int nbC, float Tdist[MAXCL][MA
     } */
 }
 
-void SLSC(float Tdist[MAXCL][MAXCL], int nbC, float SLignes[], float SCol[], float &Sdiag) {
+void SLSC(float Tdist[MAXCL][MAXCL], int nbC, float SLignes[], float SCol[], float& Sdiag) {
   float SC, SL;
   Sdiag = 0;
   for (int i = 0; i < nbC; i++) {
@@ -164,7 +164,7 @@ float similaritecos2(vector<float> v1, vector<float> v2, int nbIt) {
 }
 
 //distance coisinus entre v1 : mesures de desaccords par item
-void mesuresrepartitiondesaccords(int TConf[MAXCL][MAXCL], int T[MAXIT][MAXA], int nbC, int nbIt, int nbAR, float &sim_uniforme, float &moy, float &sigma) {
+void mesuresrepartitiondesaccords(int TConf[MAXCL][MAXCL], int T[MAXIT][MAXA], int nbC, int nbIt, int nbAR, float& sim_uniforme, float& moy, float& sigma) {
   int nbdesa = 0;
   for (int c1 = 0; c1 < nbC; c1++) {
     for (int c2 = 0; c2 <= c1; c2++) {
@@ -190,7 +190,7 @@ void mesuresrepartitiondesaccords(int TConf[MAXCL][MAXCL], int T[MAXIT][MAXA], i
   sim_uniforme = similaritecos2(v1, v2, nbIt);
   moy = S / nbIt;
   sigma = sqrt(S2 / nbIt - moy * moy);
-  cout << "sim=" << sim_uniforme <<", moy=" << moy << ", sigma=" <<sigma << endl;
+  cout << "sim=" << sim_uniforme <<", moy=" << moy << ", sigma=" << sigma << endl;
 }
 
 //taux d'écarts entre deux ref, pondéré par la distance entre classes
@@ -207,7 +207,7 @@ float tauxdiff2Refdist(int Ref1[], int Ref2[], int nbIt, float Tdist[MAXCL][MAXC
 }
 
 /***********************************************************/
-void calculmoytaux_ecartdist(int TRefA[][MAXIT], int nbG, int nbIt, float Tdist[MAXCL][MAXCL], float &mtauxecart, float &ettauxecart) {
+void calculmoytaux_ecartdist(int TRefA[][MAXIT], int nbG, int nbIt, float Tdist[MAXCL][MAXCL], float& mtauxecart, float& ettauxecart) {
   mtauxecart = 0;
   ettauxecart = 0;
   float tecarre = 0;
@@ -241,7 +241,7 @@ float estimationtauxG(float tauGsim, float Tdist2[MAXCL][MAXCL], int nbC) {
       if (Tdist2[c1][c2] >= 0.001)
         S += Tdist2[c1][c2];
     }
-  return tauGsim/S;
+  return tauGsim / S;
 }
 
 /*
@@ -298,8 +298,8 @@ float cosinus_uniforme(float Tdist2[MAXCL][MAXCL], int nbC) {
 
 //distance à une répartition du nombre de désaccords sur les items par une annotation au hasard...
 //1 - annotation réelle (TA)
-int cmpfunct(const void *a,const void *b) {
-  return (*(int*) a - *(int*)b);
+int cmpfunct(const void* a,const void* b) {
+  return (*(int*)a - *(int*)b);
 }
 
 void nb_desaccords_par_item(int TA[MAXIT][MAXA], int nbA, int nbIt, int Vreel[]) {
@@ -379,8 +379,8 @@ float distance2_vect_entier(int v1[], int v2[], int nbIt) {
   return (1.0 * abs(S1 - S2) / nbIt);
 }
 
-void distance_distri_item(int TA[MAXIT][MAXA], int nbA, int nbIt, int nbC, float &distance_annot_hasard, float &cosinus_annot_hasard) {
-  int VdesReel[nbIt],Vrand[nbIt];
+void distance_distri_item(int TA[MAXIT][MAXA], int nbA, int nbIt, int nbC, float& distance_annot_hasard, float& cosinus_annot_hasard) {
+  int VdesReel[nbIt], Vrand[nbIt];
   nb_desaccords_par_item(TA, nbA, nbIt, VdesReel);
   //cout << "VdesReel= ";
   //for (int i=0;i<nbIt;i++) cout << VdesReel[i] << " ";

@@ -14,7 +14,7 @@ using namespace std;
 // une donnée manquante est indiquée par un zéro
 
 //remplit le tableau classes x observables du nombre d'annotations
-void TabnbAnnotParClasseParItem(int tabannot[MAXIT][MAXA], int nbit, int nba, int nbc, int TAnParClasseParItem[MAXCL][MAXIT], int TSommeLigne[], int TSommeCol[MAXIT], int &annotutiles) {
+void TabnbAnnotParClasseParItem(int tabannot[MAXIT][MAXA], int nbit, int nba, int nbc, int TAnParClasseParItem[MAXCL][MAXIT], int TSommeLigne[], int TSommeCol[MAXIT], int& annotutiles) {
   // initialisations
   for (int it = 0; it < nbit; it++) {
     TSommeCol[it] = 0;
