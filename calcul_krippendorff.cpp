@@ -46,7 +46,7 @@ void TabnbAnnotParClasseParItem(int tabannot[MAXIT][MAXA], int nbit, int nba, in
 
 /* calcul de TC[classe][classe]
    paramètres : tableau des annotations, nb d'observables et d'annotateurs, la classe concernée, le tableau du nombre d'observations par item*/
-float calcul1(int tabannot[MAXIT][MAXA], int nbit, int nba, int classe, int Tnbobs[]){
+float calcul1(int tabannot[MAXIT][MAXA], int nbit, int nba, int classe, int Tnbobs[]) {
   float res = 0;
   for (int it = 0; it < nbit; it++) {//pour chaque observable
     int temp = 0;
