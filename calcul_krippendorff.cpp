@@ -14,7 +14,6 @@ using namespace std;
 // une donnée manquante est indiquée par un zéro
 
 //remplit le tableau classes x observables du nombre d'annotations
-
 void TabnbAnnotParClasseParItem(int tabannot[MAXIT][MAXA], int nbit, int nba, int nbc, int TAnParClasseParItem[MAXCL][MAXIT], int TSommeLigne[], int TSommeCol[MAXIT], int &annotutiles) {
   // initialisations
   for (int it = 0; it < nbit; it++) {
@@ -47,7 +46,6 @@ void TabnbAnnotParClasseParItem(int tabannot[MAXIT][MAXA], int nbit, int nba, in
 
 /* calcul de TC[classe][classe]
    paramètres : tableau des annotations, nb d'observables et d'annotateurs, la classe concernée, le tableau du nombre d'observations par item*/
-
 float calcul1(int tabannot[MAXIT][MAXA], int nbit, int nba, int classe, int Tnbobs[]){
   float res = 0;
   for (int it = 0; it < nbit; it++) {//pour chaque observable
@@ -61,7 +59,6 @@ float calcul1(int tabannot[MAXIT][MAXA], int nbit, int nba, int classe, int Tnbo
   }
   return res;
 }
-
 
 float calcul2(int tabannot[MAXIT][MAXA], int nbit, int nbannot, int c1, int c2, int Tbnobs[]) {
   float tempi, tempj, res = 0;
@@ -91,7 +88,6 @@ void coincidences(int tabannot[MAXIT][MAXA], int nbit, int nba, int nbc, int Tbn
 				C[i][j] = calcul2(tabannot, nbit, nba, i, j, Tbnobs);
   }
 }
-
 
 //DISTANCES
 float delta_car(int i, int j) {
@@ -136,7 +132,6 @@ float numalpha(int TAnParClasseParItem[MAXCL][MAXIT], int TSomparCol[], int nbit
   return res;
 }
 
-
 float denomalpha(int TSomparLigne[], int nbc) {
   float res = 0;
   for (int c = 0; c < nbc; c++)
@@ -159,7 +154,6 @@ float numalphadist(int TAnParClasseParItem[MAXCL][MAXIT], int TSomparCol[], int 
   return res;
 }
 
-
 float denomalphadist(int TSomparLigne[], int nbc, float Tdist[MAXCL][MAXCL]) {
   float res = 0;
   for (int c = 0; c < nbc; c++)
@@ -167,7 +161,6 @@ float denomalphadist(int TSomparLigne[], int nbc, float Tdist[MAXCL][MAXCL]) {
       res += 1.0 * TSomparLigne[c] * TSomparLigne[k] * Tdist[c][k];
   return res;
 }
-
 
 float alpha(int tabannot[MAXIT][MAXA], int nbit, int nba, int nbc) {
   float TC[MAXCL][MAXCL];
