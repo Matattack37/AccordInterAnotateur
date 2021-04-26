@@ -143,7 +143,7 @@ float denomalpha(int TSomparLigne[], int nbc) {
 // avec un tableau de distances
 float numalphadist(int TAnParClasseParItem[MAXCL][MAXIT], int TSomparCol[], int nbit, int nbc, float Tdist[MAXCL][MAXCL]) {
   float res = 0;
-  for (int it = 0; t < nbit; it++) {
+  for (int it = 0; it < nbit; it++) {
     float sum = 0;
     for (int c = 0; c < nbc; c++)
       for (int k = c + 1; k < nbc; k++)

@@ -1,4 +1,5 @@
 #include "calcul_krippendorff.cpp"
+#include <vector>;
 
 //autre piste : normaliser les désaccords contenus dans la table de confusion et les utiliser comme
 //coefficient de similarité entre les classes
