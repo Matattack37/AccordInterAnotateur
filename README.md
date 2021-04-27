@@ -1,7 +1,7 @@
 # AccordInterAnotateur
 
 Pour télécharger le projet : 
-  - git clone https://github.com/Matattack37/AccordInterAnotateur.git
+  - git clone https://github.com/MateoMalidin/AccordInterAnnotateur.git
 
 pour mettre à jour un dépot local :
   - git pull origin master
