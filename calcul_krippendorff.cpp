@@ -1,14 +1,4 @@
-#include <iostream>
-using namespace std;
-#include <cstring>
-#include <cstdlib>
-#include <ctime>
-#include <cmath>
-#include <cstring>
-#include <fstream>
-#include <cstdio>
-#include "outils_distri_reelles.cpp"
-
+#include "calcul_krippendorff.hpp"
 //CALCUL du alpha de KRIPPENDORFF avec données manquantes
 //les classes sont numérotées de 1 à n
 // une donnée manquante est indiquée par un zéro

@@ -2,19 +2,10 @@
    il utilise outils_distances.cpp qui utilise lui-même calcul_krippendorff.cpp qui utilise outils_distri_reelles.cpp
    il y a beaucoup de fonctions inutilisées dans ces programmes, restes d'essais infructueux mais conservés néanmoins pour diverses raisons (pas toutes bonnes)...
 */
-#include <iostream>
-using namespace std;
-#include <cstring>
-#include <cstdlib>
-#include <ctime>
-#include <cmath>
-#include <cstring>
-#include <fstream>
-#include <iostream>
-#include <cstdio>
 #include <random>
 #include <chrono>
-#include "outils_distances.cpp"
+#include "outils_distances.hpp"
+using namespace std;
 //#define MAXA 30
 //#define MAXIT 400
 

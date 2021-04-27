@@ -1,24 +1,24 @@
+#include "outils_distri_reelles.hpp"
 //calcul d'accords : multikappa et multipi
+/*
 #include <iostream>
-using namespace std;
-
 #include <cstring>
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
-#include <cstring>
 #include <fstream>
-#include <iostream>
 #include <cstdio>
 #include <algorithm>
+using namespace std;
 
 #define MAXIT 1700
 #define MAXA 30
 #define MAXCL 12
 
-//const int Max_obs=3000; //nb maximal d'observables
-const int Max_classes = MAXCL; //nb maximal de classes
-const int Max_annot = MAXA; //nb maximal d'annotateurs
+const int Max_obs=3000; //nb maximal d'observables
+const int Max_classes = MAXCL; // nb maximal de classes
+const int Max_annot = MAXA; // nb maximal d'annotateurs
+*/
 
 //lectures_fichiers
 string pathcsv() {
@@ -433,7 +433,7 @@ void lirenews(int T[][MAXA], int& nbAR, int& nbIt, int& nbC) {
 }
 //FIN lecture newsletter
 
-void cinq2troisclasses(int T[MAXIT][MAXA], int nbA, int nbIt){
+void cinq2troisclasses(int T[MAXIT][MAXA], int nbA, int nbIt) {
   for (int i = 0; i < nbA; i++)
     for (int j = 0; j < nbIt; j++) {
       if (T[j][i] <= 1)
@@ -709,7 +709,7 @@ float tauxdiff2Ref(int Ref1[], int Ref2[], int nbo) {
 }
 
 //calcul du taux de désaccords moyen des annotateurs avec la Ref produite
-float taux_desaccord_avec_ref(int T[][MAXIT], int RefA[], int nbA, int nbIt){
+float taux_desaccord_avec_ref(int T[][MAXIT], int RefA[], int nbA, int nbIt) {
   float Tauxdesac = 0;
   for (int a = 0; a < nbA; a++) {
     int nbdesac = 0;
