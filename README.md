@@ -1,4 +1,4 @@
-# AccordInterAnotateur
+# AccordInterAnnotateur
 
 Pour télécharger le projet : 
   - git clone https://github.com/MateoMalidin/AccordInterAnnotateur.git
