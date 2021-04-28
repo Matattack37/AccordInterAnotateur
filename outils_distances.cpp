@@ -189,7 +189,7 @@ void mesuresrepartitiondesaccords(int TConf[MAXCL][MAXCL], int T[MAXIT][MAXA], i
   sim_uniforme = similaritecos2(v1, v2, nbIt);
   moy = S / nbIt;
   sigma = sqrt(S2 / nbIt - moy * moy);
-  cout << "sim=" << sim_uniforme <<", moy=" << moy << ", sigma=" << sigma << endl;
+  cout << "sim = " << sim_uniforme <<", moy=" << moy << ", sigma=" << sigma << endl;
 }
 
 //taux d'écarts entre deux ref, pondéré par la distance entre classes
@@ -297,7 +297,7 @@ float cosinus_uniforme(float Tdist2[MAXCL][MAXCL], int nbC) {
 
 //distance à une répartition du nombre de désaccords sur les items par une annotation au hasard...
 //1 - annotation réelle (TA)
-int cmpfunct(const void* a,const void* b) {
+int cmpfunct(const void* a, const void* b) {
   return (*(int*)a - *(int*)b);
 }
 

@@ -21,7 +21,7 @@ float estimationtauxG(float tauGsim, float Tdist2[MAXCL][MAXCL], int nbC);
 void Tdist2Tdist2(float Tdist[MAXCL][MAXCL], int nbC, float Tdist2[MAXCL][MAXCL]);
 float distance_uniforme(float Tdist2[MAXCL][MAXCL], int nbC);
 float cosinus_uniforme(float Tdist2[MAXCL][MAXCL], int nbC);
-int cmpfunct(const void* a,const void* b);
+int cmpfunct(const void* a, const void* b);
 void nb_desaccords_par_item(int TA[MAXIT][MAXA], int nbA, int nbIt, int Vreel[]);
 void vect_desaccords_annotation_aleatoire(int nbA, int nbIt, int nbC, int Vrand[]);
 float cosinus_vect_entier(int v1[], int v2[], int nbIt);

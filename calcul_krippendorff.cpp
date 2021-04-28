@@ -106,7 +106,7 @@ void affiche_coincidences(float C[MAXCL][MAXCL], int nbclasses) {
     }
     cout << endl;
   }
-  printf("somme=%f\n", sum);
+  printf("somme = %f\n", sum);
 }
 
 float numalpha(int TAnParClasseParItem[MAXCL][MAXIT], int TSomparCol[], int nbit, int nbc) {

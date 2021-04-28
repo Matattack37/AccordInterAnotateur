@@ -99,7 +99,7 @@ void definition_ref(int T[MAXIT][MAXA], int nbA, int nbIt, int Ref[], int nbC) {
 //calcule le pourcentage du nb d'erreurs à la référence, par item.
 //résultat : le tableau TE
 void pourcent_erreurs_ref(int Ref[], int T[MAXIT][MAXA], int TE[MAXIT], int nbIt, int nbA) {
-  cout << "nbIt=" << nbIt << ", nbA=" << nbA << endl;
+  cout << "nbIt = " << nbIt << ", nbA = " << nbA << endl;
   for (int i = 0; i < nbIt; i++)
     TE[i] = 0;
     for (int it = 0; it < nbIt; it++) {
@@ -115,7 +115,7 @@ void pourcent_erreurs_ref(int Ref[], int T[MAXIT][MAXA], int TE[MAXIT], int nbIt
 //calcule le tableau des erreurs à la ref, par item et par classe (pourcentage par classe, pour chaque item
 //le résultat est le tableau TEIt
 void erreurs_ref_par_item_par_classe(int Ref[], int T[MAXIT][MAXA], float TEIt[][MAXCL], int nbIt, int nbA, int nbC) {
-  for (int it=0;it<nbIt;it++) { //pour chaque item
+  for (int it = 0; it < nbIt; it++) { //pour chaque item
     int S = 0, Ch = Ref[it]; //classe ref pour it
     for (int cl = 0; cl < nbC; cl++)
       TEIt[it][cl] = 0;
@@ -155,8 +155,8 @@ void etude_distri_reelle(int T[MAXIT][MAXA], int nbAR, int nbIt, int nbC, int Re
   float moyer,siger;
   pourcent_erreurs_ref(Ref, T, TE, nbIt, nbAR);
   moy_et_ecarttype_pourcenterr_par_item(Ref, T, nbIt, nbAR, moyer, siger);
-  cout << "taux erreurs à la ref=" << moyer << endl;
-  cout << "ecart-type erreurs à la ref=" << siger << endl;
+  cout << "taux erreurs à la ref = " << moyer << endl;
+  cout << "ecart-type erreurs à la ref = " << siger << endl;
   erreurs_ref_par_item_par_classe(Ref, T, TEIt, nbIt, nbAR, nbC);
   cout << "TEIt OK\n";
 }
@@ -166,7 +166,7 @@ void etude_distri_reelle(int T[MAXIT][MAXA], int nbAR, int nbIt, int nbC, int Re
 
 //on suppose que le nb de désaccords par annotateurs avec la ref initiale des données réelles suit une loi normale
 //résultat : le tableau nbErparA, du nombre d'erreurs (écarts à la ref) pour chaque annotateur
-void nberreursparannot(int nbErparA[], int nbA, float moyErparAnnot, float sigmaA,int& nberTot) {
+void nberreursparannot(int nbErparA[], int nbA, float moyErparAnnot, float sigmaA, int& nberTot) {
   nberTot = 0;
   unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
   default_random_engine generateur (seed);
@@ -213,14 +213,15 @@ int tirageErreur(int Ref, float TEIt[], int nbC) {
         sommeTE += nb;
         while (j < nb) {
           tirage[i] = classe;
-          i++;j++;
+          i++;
+          j++;
         }
     }
   }
   int choix;
   if (sommeTE > 0) {
     choix = rand() % sommeTE; //somme TE n'est pas forcément 10000 !
-    if (choix>Smax)
+    if (choix > Smax)
       choix = choix % Smax;
   }
   else
@@ -260,7 +261,7 @@ void choixunannotateur1(int nber, int nbIt, int nbC, int Ref[], int Tabannot[], 
   // les erreurs de l'annotateur
   for (int i = 0; i < nber; i++) { // pour chaque erreur à définir
     int tirage = rand() % sommediff;
-    int e  =0 ,stemp = TEtemp[0];
+    int e = 0 ,stemp = TEtemp[0];
     while ((e < nbIt) && (tirage > stemp)) {
       e++;
       stemp += TEtemp[e];
@@ -279,7 +280,7 @@ void choixunannotateur1(int nber, int nbIt, int nbC, int Ref[], int Tabannot[], 
   }
 }
 
-//même chose dans le cas où les items de de désaccords sont choisis au hasard
+//même chose dans le cas où les items de désaccords sont choisis au hasard
 void choixunannotateur0(int nber, int nbIt, int nbC, int Ref[], int Tabannot[], float TEIt[][MAXCL], bool& possible, int choix2) {
   bool TIt[nbIt];
   for (int it = 0; it < nbIt; it++) {
@@ -317,7 +318,7 @@ void choixunannotateur(int nber, int nbIt, int nbC, int Ref[], int Tabannot[], i
 }
 
 //choix des annotations d'un groupe d'annotateurs
-// résultat : Tabannot ; paramètres : le nb d'écarts à la ref par annotateurs et les tableaux de distributi//ons des écarts à la ref dans la distribution réelle
+// résultat : Tabannot ; paramètres : le nb d'écarts à la ref par annotateurs et les tableaux de distributions des écarts à la ref dans la distribution réelle
 void choixannotations(int nbErparA[], int nbA, int nbIt, int nbC, int Ref[], int TE[], float TEIt[][MAXCL], int Tabannot[][MAXA], bool possible, int choix1, int choix2) {
   for (int a = 0; a < nbA; a++) {
     // cout << "\nannotateur " << a << endl;
@@ -419,15 +420,15 @@ void nbfois_unplusnbGgroupe(int nb, int nbG, int RefIni[], int nbIt, int nbC, in
     for (int i = 0; i < nb; i++) {
       //cout << "\n unplusnbGgroupe, i=" << i << endl;
       unplusnbGgroupe(nbG, RefIni, nbIt, nbC, TE, TEIt, nbA, tauxErparAnnot, sigmatauxEr, choix1, choix2, mtauxErRef, sigmatauxErRef, mtauxconf, alpha, alphaconf, cos_uniforme, distri_hasard, cos_distri_hasard, costaux_distri_hasard);
-        moymtauxErRef += mtauxErRef;
-        moysigmatauxErRef += 0;
-        moymtauxconf += mtauxconf;
-        moyalpha += alpha;
-        moyalphaconf += alphaconf;
-        moycos_uniforme += cos_uniforme;
-        moydistri_hasard += distri_hasard;
-        moycos_distri_hasard += cos_distri_hasard;
-        cosmoytaux_distri_hasard += costaux_distri_hasard;
+      moymtauxErRef += mtauxErRef;
+      moysigmatauxErRef += 0;
+      moymtauxconf += mtauxconf;
+      moyalpha += alpha;
+      moyalphaconf += alphaconf;
+      moycos_uniforme += cos_uniforme;
+      moydistri_hasard += distri_hasard;
+      moycos_distri_hasard += cos_distri_hasard;
+      cosmoytaux_distri_hasard += costaux_distri_hasard;
     }
     moymtauxErRef = moymtauxErRef / nb;
     moymtauxconf = moymtauxconf / nb;
@@ -466,7 +467,7 @@ void affiche_res_series(int nbval, float tauxErparAnnot[], float moymtauxErRef[]
 void serie_expes(int nbval, int nb, int nbG, int RefIni[], int nbIt, int nbC, int TE[], float TEIt[][MAXCL], int nbA, float tauxErparAnnot[], float sigmatauxEr, int choix1, int choix2, float moymtauxErRef[], float moysigmatauxErRef[], float moymtauxconf[], float moyalpha[], float moyalphaconf[], float moycos_uniforme[], float moydistri_hasard[], float moycos_distri_hasard[], float cosmoytaux_distri_hasard[]) {
   for (int i = 0; i < nbval; i++) {
     //for (int i=0;i<nbval;i++) {
-    cout << "test=" << i << endl;
+    cout << "test = " << i << endl;
     nbfois_unplusnbGgroupe(nb, nbG, RefIni, nbIt, nbC, TE, TEIt, nbA, tauxErparAnnot[i], sigmatauxEr, choix1, choix2, moymtauxErRef[i], moysigmatauxErRef[i], moymtauxconf[i], moyalpha[i], moyalphaconf[i], moycos_uniforme[i], moydistri_hasard[i], moycos_distri_hasard[i], cosmoytaux_distri_hasard[i]);
   }
   affiche_res_series(nbval, tauxErparAnnot, moymtauxErRef, moysigmatauxErRef, moymtauxconf, moyalpha, moyalphaconf, moycos_uniforme, moydistri_hasard, moycos_distri_hasard, cosmoytaux_distri_hasard);

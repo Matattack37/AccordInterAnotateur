@@ -97,10 +97,10 @@ void lecture_ligne2(string ligne, int lg, int a, int T[MAXIT][MAXA]) {
 
 int lire(string nomfich, int T[MAXIT][MAXA], int& nbA, int& nbIt) {
   string nomfichalire = nomfich;
-  cout << "nomfichalire="<< nomfichalire << endl;
+  cout << "nomfichalire = "<< nomfichalire << endl;
   const char* nom_fichier = nomfichalire.c_str();
   ifstream file(nom_fichier);
-  if (!file){
+  if (!file) {
     cout << "erreur ouverture fichier " << nomfichalire << endl;
     return 0;
   }
@@ -126,10 +126,10 @@ int lire(string nomfich, int T[MAXIT][MAXA], int& nbA, int& nbIt) {
 
 int lire2(string nomfich, int T[MAXIT][MAXA], int& nbA, int& nbIt) {
   string nomfichalire = nomfich;
-  cout << "nomfichalire=" << nomfichalire << endl;
+  cout << "nomfichalire = " << nomfichalire << endl;
   const char* nom_fichier = nomfichalire.c_str();
   ifstream file(nom_fichier);
-  if (!file){
+  if (!file) {
     cout << "erreur ouverture fichier " << nomfichalire << endl;
     return 0;
   }
@@ -192,14 +192,14 @@ void lireistexajout(string nomfich, int T[MAXIT][MAXA], int Nbobs, int& nbobsfic
     getline(file, ligne); //on passe la ligne Nbclasses
     getline(file, ligne); // on lit le nombre d'observations
     lg = ligne.size();
-    int pos = ligne.find("Nbobservables=");
+    int pos = ligne.find("Nbobservables = ");
     if (pos != string::npos) {
       pos += 14;
       while ((pos < lg) && (ligne[pos] >= 48) && (ligne[pos] <= 57)) {
         nbobsfich = 10 * nbobsfich + ligne[pos] - 48;
         pos++;
       }
-      cout << "\nNbobsfich=" << nbobsfich << endl;
+      cout << "\nNbobsfich = " << nbobsfich << endl;
     }
     else
       cout << "erreur lecture nbobsfich\n";
@@ -285,25 +285,25 @@ int lireistex(int T[MAXIT][MAXA], int num, int& nbA, int& nbIt, int& nbC) {
       lg = ligne.size();
       int pos = 0;
       if (ligne[0] != '%') { //lecture du nombre de classes
-        pos = ligne.find("Nbclasses=");
+        pos = ligne.find("Nbclasses = ");
         if ((Nbclu == 0) && (pos != string::npos)) {
           pos += 10;
           while ((pos < lg) && (ligne[pos] >= 48) && (ligne[pos] <= 57)) {
             Nbclu = 10 * Nbclu + ligne[pos] - 48;
             pos++;
           }
-          cout << "Nb de classes lues =" << Nbclu << endl;
+          cout << "Nb de classes lues = " << Nbclu << endl;
 	        nbC = Nbclu;
         }
         else { //2
-          pos = ligne.find("Nbobservables=");
+          pos = ligne.find("Nbobservables = ");
           if ((Nbobs == 0) && (pos != string::npos)) {
             pos += 14;
             while ((pos<lg) && (ligne[pos] >= 48) && (ligne[pos] <= 57)) {
               Nbobs = 10 * Nbobs + ligne[pos] - 48;
               pos++;
             }
-            cout << "\nNbobs=" << Nbobs << endl;
+            cout << "\nNbobs = " << Nbobs << endl;
           }
         } //fin else 2
       } //fin ligne qui n'est pas un commentaire
@@ -343,7 +343,7 @@ int lireistex(int T[MAXIT][MAXA], int num, int& nbA, int& nbIt, int& nbC) {
     for (int i = 0; i < 9; i++)
       if (Tabclasses[i])
         nbC++;
-    cout << "nb de classes differentes trouvees=" << nbC << endl;
+    cout << "nb de classes differentes trouvees = " << nbC << endl;
     nbIt = Nbobs;
     conversion_classes(T, Tabclasses, nbA, nbIt, nbC);
   } //fin de la lecture (else //0)
@@ -400,7 +400,7 @@ int lecture_news(string nomfich, int T[][MAXA], int nbA, int& nbannotations, int
     nbIt = it;
     cout << nbIt << " items\n";
     nbannotations = nbIt * nbA - nbmanquantes;
-    cout << "nb total d'annotations=" << nbannotations << endl;
+    cout << "nb total d'annotations = " << nbannotations << endl;
     return 1;
   }
 }
@@ -519,9 +519,6 @@ void ajout_un(int T[MAXIT][MAXA], int nbIt, int nba, int T1[MAXIT][MAXA]) {
 //CALCULS Kappa
 //Artmann Poesio
 
-//CALCULS Kappa
-//Artmann Poesio
-
 //nb de fois où l'observable i est classé dans la catégorie k
 int xikres(int i, int k, int nba, int vAnnot[][MAXIT]) {
   int j, res = 0;
@@ -606,9 +603,9 @@ float kappaAP(int nblignes, int nbclasses, int nba, int vAnnot[][MAXIT]) {
 float piAP(int nblignes, int nbclasses, int nba, int vAnnot[][MAXIT]) {
   float Ao, Ae;
   Ao = Aokappa(nblignes, nbclasses, nba, vAnnot);
-  printf("Ao=%f\n", Ao);
+  printf("Ao = %f\n", Ao);
   Ae = Aepi(nblignes, nbclasses, nba, vAnnot);
-  printf("Aepi=%f\n", Ae);
+  printf("Aepi = %f\n", Ae);
   return (Ao - Ae) / (1.0 - Ae);
 }
 
