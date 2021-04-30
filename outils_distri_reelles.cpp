@@ -422,7 +422,7 @@ void onze2cinqclasses(int T[][MAXA], int nbit, int nba) {
     }
 }
 
-void lirenews(int T[][MAXA], int& nbAR, int& nbIt, int& nbC) {
+void lirenews(int T[MAXIT][MAXA], int& nbAR, int& nbIt, int& nbC) {
   string nomfich = "./corpus/labelisation_newsletter.csv";
   nbAR = 6;
   int nbannotations = 0;

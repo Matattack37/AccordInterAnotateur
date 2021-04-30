@@ -189,7 +189,7 @@ void mesuresrepartitiondesaccords(int TConf[MAXCL][MAXCL], int T[MAXIT][MAXA], i
   sim_uniforme = similaritecos2(v1, v2, nbIt);
   moy = S / nbIt;
   sigma = sqrt(S2 / nbIt - moy * moy);
-  cout << "sim = " << sim_uniforme <<", moy=" << moy << ", sigma=" << sigma << endl;
+  cout << "sim = " << sim_uniforme <<", moy = " << moy << ", sigma = " << sigma << endl;
 }
 
 //taux d'écarts entre deux ref, pondéré par la distance entre classes

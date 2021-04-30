@@ -2,10 +2,11 @@
    il utilise outils_distances.cpp qui utilise lui-même calcul_krippendorff.cpp qui utilise outils_distri_reelles.cpp
    il y a beaucoup de fonctions inutilisées dans ces programmes, restes d'essais infructueux mais conservés néanmoins pour diverses raisons (pas toutes bonnes)...
 */
-#include <random>
-#include <chrono>
-#include "outils_distances.hpp"
-using namespace std;
+#include "simulation_sur_distri_reelles_2021_03.hpp"
+//#include <random>
+//#include <chrono>
+//#include "outils_distances.hpp"
+//using namespace std;
 //#define MAXA 30
 //#define MAXIT 400
 
@@ -113,21 +114,32 @@ void pourcent_erreurs_ref(int Ref[], int T[MAXIT][MAXA], int TE[MAXIT], int nbIt
 }
 
 //calcule le tableau des erreurs à la ref, par item et par classe (pourcentage par classe, pour chaque item
-//le résultat est le tableau TEIt
+//le résultat est le tableau TEIt (somme = 1 sur chaque ligne)
 void erreurs_ref_par_item_par_classe(int Ref[], int T[MAXIT][MAXA], float TEIt[][MAXCL], int nbIt, int nbA, int nbC) {
   for (int it = 0; it < nbIt; it++) { //pour chaque item
-    int S = 0, Ch = Ref[it]; //classe ref pour it
-    for (int cl = 0; cl < nbC; cl++)
-      TEIt[it][cl] = 0;
-    for (int a = 0; a < nbA; a++)
-      if (T[it][a] != Ch)
-        S++; //somme des "erreurs" sur l'item
-        for (int a = 0; a < nbA; a++) {
-          int Cha = T[a][it];
-          if (Cha != Ch)
-            TEIt[it][Cha] += 1.0 / S;
-        }
+    int TEr[nbC]; //nb de choix par classe, 0 pour la ref
+    int S = 0, Ch=Ref[it]; //classe ref pour it
+    for (int c = 0; c < nbC; c++)
+      TEr[c]=0;
+    for (int a = 0; a < nbA; a++) {
+      int choix = T[it][a];
+      if (choix != Ch)
+        TEr[choix]++;
     }
+    for (int c = 0; c < nbC; c++)
+      S += TEr[c]; //somme des "erreurs" sur l'item
+    if (S != 0) {
+      for (int c = 0; c < nbC; c++)
+        TEIt[it][c] = (1.0 * TEr[c]) / S;
+    }
+    else { //cas d'une classe qui fait l'unanimité
+      for (int c = 0; c < nbC; c++)
+        if (c == Ch)
+          TEIt[it][c] = 0;
+        else
+          TEIt[it][c] = 1.0 / (nbC - 1);
+    }
+  }
 }
 
 //calcul de la moyenne et de l'écart-type du taux (nb d'écarts à la référence/nb d'annotateurs) par item
@@ -410,6 +422,7 @@ void unplusnbGgroupe(int nbG, int RefIni[], int nbIt, int nbC, int TE[], float T
 }
 
 void nbfois_unplusnbGgroupe(int nb, int nbG, int RefIni[], int nbIt, int nbC, int TE[], float TEIt[][MAXCL], int nbA, float tauxErparAnnot, float sigmatauxEr, int choix1, int choix2, float& moymtauxErRef, float& moysigmatauxErRef, float& moymtauxconf, float& moyalpha, float& moyalphaconf, float& moycos_uniforme, float& moydistri_hasard, float& moycos_distri_hasard, float& cosmoytaux_distri_hasard) {
+  cout << "ok ";
   float mtauxErRef, sigmatauxErRef, mtauxconf, alpha,alphaconf, cos_uniforme, distri_hasard, cos_distri_hasard, costaux_distri_hasard;
   moymtauxErRef = 0;
   moysigmatauxErRef = 0;
@@ -487,7 +500,7 @@ int main(int n, char* param[]) {
   int TE[MAXIT]; //le nombre d'erreurs par item
   float TEIt[MAXIT][MAXCL];
   int TConfusion[MAXCL][MAXCL];
-  etude_distri_reelle(T, nbAR, nbIt,nbC, Ref, TE, TEIt);
+  etude_distri_reelle(T, nbAR, nbIt, nbC, Ref, TE, TEIt);
   table_confusion_classes(T, nbAR, nbIt, nbC, TConfusion);
   float Tdist[MAXCL][MAXCL];
   confusionnormalisee(TConfusion, nbC, Tdist);
