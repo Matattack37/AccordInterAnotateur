@@ -422,7 +422,6 @@ void unplusnbGgroupe(int nbG, int RefIni[], int nbIt, int nbC, int TE[], float T
 }
 
 void nbfois_unplusnbGgroupe(int nb, int nbG, int RefIni[], int nbIt, int nbC, int TE[], float TEIt[][MAXCL], int nbA, float tauxErparAnnot, float sigmatauxEr, int choix1, int choix2, float& moymtauxErRef, float& moysigmatauxErRef, float& moymtauxconf, float& moyalpha, float& moyalphaconf, float& moycos_uniforme, float& moydistri_hasard, float& moycos_distri_hasard, float& cosmoytaux_distri_hasard) {
-  cout << "ok ";
   float mtauxErRef, sigmatauxErRef, mtauxconf, alpha,alphaconf, cos_uniforme, distri_hasard, cos_distri_hasard, costaux_distri_hasard;
   moymtauxErRef = 0;
   moysigmatauxErRef = 0;
@@ -462,6 +461,19 @@ void affichage_ligne_R(int nbval, string titre, float Tab[]) {
   printf("%.4f)\n", Tab[nbval - 1]);
 }
 
+// ecrit les résultats d'expérience dans un fichier csv
+void write_res_series(string corpus, int nbval, float moymtauxErRef[], float moyalpha[]) {
+  string nomfich = "./res/" + corpus + ".csv";
+  ofstream file(nomfich.c_str());
+  if (!file)
+    cout << "erreur ouverture fichier " << nomfich << endl;
+  else {
+    file << "alpha,taux" << endl;
+    for (int nb = 0; nb < nbval; nb++)
+      file << moyalpha[nb] << "," << moymtauxErRef[nb] << endl;
+  }
+}
+
 void affiche_res_series(int nbval, float tauxErparAnnot[], float moymtauxErRef[], float moysigmatauxErRef[], float moymtauxconf[], float moyalpha[], float moyalphaconf[], float moycos_uniforme[], float moydistri_hasard[], float moycos_distri_hasard[], float cosmoytaux_distri_hasard[]) {
   affichage_ligne_R(nbval, "alpha              ", moyalpha);
   //affichage_ligne_R(nbval,"alphaconf          ",moyalphaconf);
@@ -493,67 +505,139 @@ int main(int n, char* param[]) {
   int nbAR = 0, nbIt = 0;
   int nbA = 5; //nb d'annotateurs dans les groupes simulés
   //LECTURE 5 classes
-  lecture_corpus(param[1], nbC, nbAR, nbIt, T);
-  affiche_annot(T, nbIt, nbAR);
-  //CALCULS SUR DISTRI Réelles
-  int Ref[MAXIT];
-  int TE[MAXIT]; //le nombre d'erreurs par item
-  float TEIt[MAXIT][MAXCL];
-  int TConfusion[MAXCL][MAXCL];
-  etude_distri_reelle(T, nbAR, nbIt, nbC, Ref, TE, TEIt);
-  table_confusion_classes(T, nbAR, nbIt, nbC, TConfusion);
-  float Tdist[MAXCL][MAXCL];
-  confusionnormalisee(TConfusion, nbC, Tdist);
-  //distancegrossiere(nbC,Tdist);
-  //affichage distances annotations réelles
-  float SLignes[nbC], SCol[nbC], Sdiag;
-  SLSC(Tdist, nbC, SLignes, SCol, Sdiag);
-  /* //affichage confusion
-  cout << "tableau confusion entre classes\n";
-  for (int c1=0;c1<nbC;c1++) {
-    for (int c2=0;c2<nbC;c2++)
-      printf("%.6f ",Tdist[c1][c2]);
-    printf(" | %.6f\n",SLignes[c1]);
-  }
-  for (int c2=0;c2<nbC;c2++) printf(" ----- ") ; cout << endl;
-    for (int c2=0;c2<nbC;c2++) printf("%.6f ",SLignes[c2]);
-      printf(" | %.6f\n",Sdiag);
-  */
-  float sim_uniforme, moy, sigma;
-  int nbdesa = 0;
-  mesuresrepartitiondesaccords(TConfusion, T, nbC, nbIt, nbAR, sim_uniforme, moy, sigma);
-  float Tdist2[MAXCL][MAXCL];
-  Tdist2Tdist2(Tdist, nbC, Tdist2);
-  //affichage Tdist2 annotations réelles
-  cout << "Tdist2\n";
-  for (int c1 = 0; c1 < nbC - 1; c1++) {
-    for (int c2 = 0; c2 < nbC; c2++)
-      if (c2 <= c1)
-        printf("%s  ", "_______");
-      else
-        printf("%f ", Tdist2[c1][c2]);
-    cout << endl;
-  }
-  //ANNOTATIONS FICTIVES
-  //float tauxErparAnnot=0.25,sigmatauxEr=0.05;
-  vector<int> nbErparA;
-  nbErparA.resize(nbA);
-  int Tabannot[nbA][MAXIT];
-  int nbG = 100; //nb de groupes auquel on compare un groupe, 100 par défaut
-  int nb = 20; //à revoir
-  // SERIES d'expé
-  int choix1 = 1, choix2 = 1;
+  if (string(param[1]) == "all") {
+    string args[] = {"emotion", "opinion", "conq_spat", "epidemie", "coref", "similarite", "newsletter"};
+    for (int c = 0; c < 7; c++) {
+      lecture_corpus(args[c], nbC, nbAR, nbIt, T);
+      affiche_annot(T, nbIt, nbAR);
+      //CALCULS SUR DISTRI Réelles
+      int Ref[MAXIT];
+      int TE[MAXIT]; //le nombre d'erreurs par item
+      float TEIt[MAXIT][MAXCL];
+      int TConfusion[MAXCL][MAXCL];
+      etude_distri_reelle(T, nbAR, nbIt, nbC, Ref, TE, TEIt);
+      table_confusion_classes(T, nbAR, nbIt, nbC, TConfusion);
+      float Tdist[MAXCL][MAXCL];
+      confusionnormalisee(TConfusion, nbC, Tdist);
+      //distancegrossiere(nbC,Tdist);
+      //affichage distances annotations réelles
+      float SLignes[nbC], SCol[nbC], Sdiag;
+      SLSC(Tdist, nbC, SLignes, SCol, Sdiag);
+      /* //affichage confusion
+      cout << "tableau confusion entre classes\n";
+      for (int c1=0;c1<nbC;c1++) {
+        for (int c2=0;c2<nbC;c2++)
+          printf("%.6f ",Tdist[c1][c2]);
+        printf(" | %.6f\n",SLignes[c1]);
+      }
+      for (int c2=0;c2<nbC;c2++) printf(" ----- ") ; cout << endl;
+        for (int c2=0;c2<nbC;c2++) printf("%.6f ",SLignes[c2]);
+          printf(" | %.6f\n",Sdiag);
+      */
+      float sim_uniforme, moy, sigma;
+      int nbdesa = 0;
+      mesuresrepartitiondesaccords(TConfusion, T, nbC, nbIt, nbAR, sim_uniforme, moy, sigma);
+      float Tdist2[MAXCL][MAXCL];
+      Tdist2Tdist2(Tdist, nbC, Tdist2);
+      //affichage Tdist2 annotations réelles
+      cout << "Tdist2\n";
+      for (int c1 = 0; c1 < nbC - 1; c1++) {
+        for (int c2 = 0; c2 < nbC; c2++)
+          if (c2 <= c1)
+            printf("%s  ", "_______");
+          else
+            printf("%f ", Tdist2[c1][c2]);
+        cout << endl;
+      }
+      //ANNOTATIONS FICTIVES
+      //float tauxErparAnnot=0.25,sigmatauxEr=0.05;
+      vector<int> nbErparA;
+      nbErparA.resize(nbA);
+      int Tabannot[nbA][MAXIT];
+      int nbG = 100; //nb de groupes auquel on compare un groupe, 100 par défaut
+      int nb = 20; //à revoir
+      // SERIES d'expé
+      int choix1 = 1, choix2 = 1;
 
-  //I - Variations mesure d'accords/taux d'écart entre Rf
-  float  sigmatauxEr = 0.05;
-  // pour tester
-  //float TabtauxErparAnnot[2]={0.2};
-  //int nbtests=1;
-  // fin pour tester
-  //float TabtauxErparAnnot[12]={0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.6,0.7};
-  int nbtests = 10;
-  float TabtauxErparAnnot[] = {0.075, 0.1, 0.125, 0.15, 0.175, 0.2, 0.25, 0.3, 0.35, 0.4};
-  float moymtauxErRef[nbtests], moysigmatauxErRef[nbtests], moymtauxconf[nbtests], moyalpha[nbtests], moyalphaconf[nbtests], moycos_uniforme[nbtests], moydistri_hasard[nbtests], moycos_distri_hasard[nbtests], cosmoytaux_distri_hasard[nbtests];
-  serie_expes(nbtests, nb, nbG, Ref, nbIt, nbC, TE, TEIt, nbA, TabtauxErparAnnot, sigmatauxEr, choix1, choix2, moymtauxErRef, moysigmatauxErRef, moymtauxconf, moyalpha, moyalphaconf, moycos_uniforme, moydistri_hasard, moycos_distri_hasard, cosmoytaux_distri_hasard);
-	return 0;
+      //I - Variations mesure d'accords/taux d'écart entre Rf
+      float  sigmatauxEr = 0.05;
+      // pour tester
+      //float TabtauxErparAnnot[2]={0.2};
+      //int nbtests=1;
+      // fin pour tester
+      //float TabtauxErparAnnot[12]={0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.6,0.7};
+      int nbtests = 10;
+      float TabtauxErparAnnot[] = {0.075, 0.1, 0.125, 0.15, 0.175, 0.2, 0.25, 0.3, 0.35, 0.4};
+      float moymtauxErRef[nbtests], moysigmatauxErRef[nbtests], moymtauxconf[nbtests], moyalpha[nbtests], moyalphaconf[nbtests], moycos_uniforme[nbtests], moydistri_hasard[nbtests], moycos_distri_hasard[nbtests], cosmoytaux_distri_hasard[nbtests];
+      serie_expes(nbtests, nb, nbG, Ref, nbIt, nbC, TE, TEIt, nbA, TabtauxErparAnnot, sigmatauxEr, choix1, choix2, moymtauxErRef, moysigmatauxErRef, moymtauxconf, moyalpha, moyalphaconf, moycos_uniforme, moydistri_hasard, moycos_distri_hasard, cosmoytaux_distri_hasard);
+      write_res_series(args[c], nbtests, moymtauxErRef, moyalpha);
+    }
+    return 0;
+  }
+  else {
+    lecture_corpus(param[1], nbC, nbAR, nbIt, T);
+    affiche_annot(T, nbIt, nbAR);
+    //CALCULS SUR DISTRI Réelles
+    int Ref[MAXIT];
+    int TE[MAXIT]; //le nombre d'erreurs par item
+    float TEIt[MAXIT][MAXCL];
+    int TConfusion[MAXCL][MAXCL];
+    etude_distri_reelle(T, nbAR, nbIt, nbC, Ref, TE, TEIt);
+    table_confusion_classes(T, nbAR, nbIt, nbC, TConfusion);
+    float Tdist[MAXCL][MAXCL];
+    confusionnormalisee(TConfusion, nbC, Tdist);
+    //distancegrossiere(nbC,Tdist);
+    //affichage distances annotations réelles
+    float SLignes[nbC], SCol[nbC], Sdiag;
+    SLSC(Tdist, nbC, SLignes, SCol, Sdiag);
+    /* //affichage confusion
+    cout << "tableau confusion entre classes\n";
+    for (int c1=0;c1<nbC;c1++) {
+      for (int c2=0;c2<nbC;c2++)
+        printf("%.6f ",Tdist[c1][c2]);
+      printf(" | %.6f\n",SLignes[c1]);
+    }
+    for (int c2=0;c2<nbC;c2++) printf(" ----- ") ; cout << endl;
+      for (int c2=0;c2<nbC;c2++) printf("%.6f ",SLignes[c2]);
+        printf(" | %.6f\n",Sdiag);
+    */
+    float sim_uniforme, moy, sigma;
+    int nbdesa = 0;
+    mesuresrepartitiondesaccords(TConfusion, T, nbC, nbIt, nbAR, sim_uniforme, moy, sigma);
+    float Tdist2[MAXCL][MAXCL];
+    Tdist2Tdist2(Tdist, nbC, Tdist2);
+    //affichage Tdist2 annotations réelles
+    cout << "Tdist2\n";
+    for (int c1 = 0; c1 < nbC - 1; c1++) {
+      for (int c2 = 0; c2 < nbC; c2++)
+        if (c2 <= c1)
+          printf("%s  ", "_______");
+        else
+          printf("%f ", Tdist2[c1][c2]);
+      cout << endl;
+    }
+    //ANNOTATIONS FICTIVES
+    //float tauxErparAnnot=0.25,sigmatauxEr=0.05;
+    vector<int> nbErparA;
+    nbErparA.resize(nbA);
+    int Tabannot[nbA][MAXIT];
+    int nbG = 100; //nb de groupes auquel on compare un groupe, 100 par défaut
+    int nb = 20; //à revoir
+    // SERIES d'expé
+    int choix1 = 1, choix2 = 1;
+
+    //I - Variations mesure d'accords/taux d'écart entre Rf
+    float  sigmatauxEr = 0.05;
+    // pour tester
+    //float TabtauxErparAnnot[2]={0.2};
+    //int nbtests=1;
+    // fin pour tester
+    //float TabtauxErparAnnot[12]={0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.6,0.7};
+    int nbtests = 10;
+    float TabtauxErparAnnot[] = {0.075, 0.1, 0.125, 0.15, 0.175, 0.2, 0.25, 0.3, 0.35, 0.4};
+    float moymtauxErRef[nbtests], moysigmatauxErRef[nbtests], moymtauxconf[nbtests], moyalpha[nbtests], moyalphaconf[nbtests], moycos_uniforme[nbtests], moydistri_hasard[nbtests], moycos_distri_hasard[nbtests], cosmoytaux_distri_hasard[nbtests];
+    serie_expes(nbtests, nb, nbG, Ref, nbIt, nbC, TE, TEIt, nbA, TabtauxErparAnnot, sigmatauxEr, choix1, choix2, moymtauxErRef, moysigmatauxErRef, moymtauxconf, moyalpha, moyalphaconf, moycos_uniforme, moydistri_hasard, moycos_distri_hasard, cosmoytaux_distri_hasard);
+    write_res_series(param[1], nbtests, moymtauxErRef, moyalpha);
+    return 0;
+  }
 }
