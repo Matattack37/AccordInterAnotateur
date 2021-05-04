@@ -117,10 +117,10 @@ void pourcent_erreurs_ref(int Ref[], int T[MAXIT][MAXA], int TE[MAXIT], int nbIt
 //le résultat est le tableau TEIt (somme = 1 sur chaque ligne)
 void erreurs_ref_par_item_par_classe(int Ref[], int T[MAXIT][MAXA], float TEIt[][MAXCL], int nbIt, int nbA, int nbC) {
   for (int it = 0; it < nbIt; it++) { //pour chaque item
-    int TEr[nbC]; //nb de choix par classe, 0 pour la ref
-    int S = 0, Ch=Ref[it]; //classe ref pour it
+    int TEr[nbC]; //nb de choix par classe différente de la Ref
+    int S = 0, Ch = Ref[it]; //classe ref pour it
     for (int c = 0; c < nbC; c++)
-      TEr[c]=0;
+      TEr[c] = 0;
     for (int a = 0; a < nbA; a++) {
       int choix = T[it][a];
       if (choix != Ch)
@@ -212,37 +212,26 @@ int min(int a, int b) {
 }
 
 int tirageErreur(int Ref, float TEIt[], int nbC) {
-  int res = Ref;
   //cout << "debut tirage erreur : Ref=" << Ref << endl;
-  int Smax = 10000 * nbC;
-  int tirage[Smax]; // intervalle du tirage
-  int i = 0; //indice du tableau tirage;
-  int sommeTE = 0;
-  for (int classe = 0; classe < nbC; classe++) {
-    if (classe != Ref) {
-        int nb = round(10000.0 * (0.9 * TEIt[classe] + (0.1 / (nbC - 1))));
-        int j = 0;
-        sommeTE += nb;
-        while (j < nb) {
-          tirage[i] = classe;
-          i++;
-          j++;
-        }
-    }
+  float Tchoix[nbC];
+  for (int c = 0; c < nbC; c++)
+    if (c == Ref)
+      Tchoix[c] = 0;
+    else
+      Tchoix[c] = 0.9 * TEIt[c] + 0.1 * (nbC - 1); //somme sur Tchoix=1.0 ; on laisse un peu de place au hasard
+  float tirage = rand() / RAND_MAX;
+  int choix = 0;
+  float S = Tchoix[choix];
+  while ((choix < nbC) && (S < tirage)) {
+    choix++;
+    S += Tchoix[choix];
   }
-  int choix;
-  if (sommeTE > 0) {
-    choix = rand() % sommeTE; //somme TE n'est pas forcément 10000 !
-    if (choix > Smax)
-      choix = choix % Smax;
+  if (choix == nbC) {
+    cout << "bug choix ?" << endl;
+    return Ref;
   }
   else
-    choix = -1;
-  //cout << "choix=" << choix << endl;
-  if (choix >= 0)
-    res = tirage[choix];
-  //cout << "res tirage erreur : " << res << endl;
-  return res;
+    return choix;
 }
 
 // la fonction rend une classe au hasard, différente de la référence
@@ -383,7 +372,7 @@ void table_confusion_classes(int T[][MAXA], int nbA, int nbIt, int nbC, int TCon
 }
 
 // conversion des parametres du alpha vers le kappa
-void alpha2kappa(int nbIt, int nbA, int TA1[MAXIT][MAXA], int vAnnot[][MAXIT]) {
+void alpha2kappa(int nbIt, int nbA, int TA1[MAXIT][MAXA], int vAnnot[MAXA][MAXIT]) {
   for (int i = 0; i < nbIt; i++) {
     for (int j = 0; j < nbA; j++) {
       vAnnot[j][i] = TA1[i][j];
@@ -408,7 +397,7 @@ void unplusnbGgroupe(string metric, int nbG, int RefIni[], int nbIt, int nbC, in
   else if (metric == "kappa") {
     int nblignes = nbA, vAnnot[MAXA][MAXIT];
     alpha2kappa(nbIt, nbA, TA1, vAnnot);
-      accord = kappaAP(nblignes, nbC, nbA, vAnnot);
+    accord = kappaAP(nblignes, nbC, nbA, vAnnot);
   }
   else
     cout << "métrique inconnue" << endl;
@@ -480,15 +469,15 @@ void affichage_ligne_R(int nbval, string titre, float Tab[]) {
 }
 
 // ecrit les résultats d'expérience dans un fichier csv
-void write_res_series(string metric, string corpus, int nbval, float moymtauxErRef[], float moymetric[]) {
+void write_res_series(string metric, string corpus, int nbval, float moymtauxErRef[], float moymetric[], float cosmoytaux_distri_hasard[]) {
   string nomfich = "./res/" + metric + "_" + corpus + ".csv";
   ofstream file(nomfich.c_str());
   if (!file)
     cout << "erreur ouverture fichier " << nomfich << endl;
   else {
-    file << metric << ",taux" << endl;
+    file << metric << ",taux,cos" << endl;
     for (int nb = 0; nb < nbval; nb++)
-      file << moymetric[nb] << "," << moymtauxErRef[nb] << endl;
+      file << moymetric[nb] << "," << moymtauxErRef[nb] << "," << cosmoytaux_distri_hasard[nb] << endl;
   }
 }
 
@@ -525,7 +514,12 @@ int main(int n, char* param[]) {
   //LECTURE 5 classes
   string arg1 = param[1];
   string arg2 = param[2];
-  int nbtests = 100;
+  int nbtests = 10;
+  int nb = 100; //à revoir
+  int nbG = 100; //nb de groupes auquel on compare un groupe, 100 par défaut
+  int choix1 = 1, choix2 = 1;
+  float  sigmatauxEr = 0.05;
+  float TabtauxErparAnnot[] = {0.075, 0.1, 0.125, 0.15, 0.175, 0.2, 0.25, 0.3, 0.35, 0.4};
   if (arg1 == "all") {
     string corpus[] = {"emotion", "opinion", "conq_spat", "epidemie", "coref", "similarite", "newsletter"};
     for (int c = 0; c < 7; c++) {
@@ -575,23 +569,17 @@ int main(int n, char* param[]) {
       vector<int> nbErparA;
       nbErparA.resize(nbA);
       int Tabannot[nbA][MAXIT];
-      int nbG = 100; //nb de groupes auquel on compare un groupe, 100 par défaut
-      int nb = 20; //à revoir
       // SERIES d'expé
-      int choix1 = 1, choix2 = 1;
 
       //I - Variations mesure d'accords/taux d'écart entre Rf
-      float  sigmatauxEr = 0.05;
       // pour tester
       //float TabtauxErparAnnot[2]={0.2};
       //int nbtests=1;
       // fin pour tester
       //float TabtauxErparAnnot[12]={0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.6,0.7};
-      float TabtauxErparAnnot[] = {0.075, 0.1, 0.125, 0.15, 0.175, 0.2, 0.25, 0.3, 0.35, 0.4};
       float moymtauxErRef[nbtests], moysigmatauxErRef[nbtests], moymtauxconf[nbtests], moymetric[nbtests], moymetricconf[nbtests], moycos_uniforme[nbtests], moydistri_hasard[nbtests], moycos_distri_hasard[nbtests], cosmoytaux_distri_hasard[nbtests];
       serie_expes(arg2, nbtests, nb, nbG, Ref, nbIt, nbC, TE, TEIt, nbA, TabtauxErparAnnot, sigmatauxEr, choix1, choix2, moymtauxErRef, moysigmatauxErRef, moymtauxconf, moymetric, moymetricconf, moycos_uniforme, moydistri_hasard, moycos_distri_hasard, cosmoytaux_distri_hasard);
-      write_res_series(arg2, corpus[c], nbtests, moymtauxErRef, moymetric);
-
+      write_res_series(arg2, corpus[c], nbtests, moymtauxErRef, moymetric, cosmoytaux_distri_hasard);
     }
     return 0;
   }
@@ -642,22 +630,17 @@ int main(int n, char* param[]) {
     vector<int> nbErparA;
     nbErparA.resize(nbA);
     int Tabannot[nbA][MAXIT];
-    int nbG = 100; //nb de groupes auquel on compare un groupe, 100 par défaut
-    int nb = 20; //à revoir
     // SERIES d'expé
-    int choix1 = 1, choix2 = 1;
 
     //I - Variations mesure d'accords/taux d'écart entre Rf
-    float  sigmatauxEr = 0.05;
     // pour tester
     //float TabtauxErparAnnot[2]={0.2};
     //int nbtests=1;
     // fin pour tester
     //float TabtauxErparAnnot[12]={0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.6,0.7};
-    float TabtauxErparAnnot[] = {0.075, 0.1, 0.125, 0.15, 0.175, 0.2, 0.25, 0.3, 0.35, 0.4};
     float moymtauxErRef[nbtests], moysigmatauxErRef[nbtests], moymtauxconf[nbtests], moymetric[nbtests], moymetricconf[nbtests], moycos_uniforme[nbtests], moydistri_hasard[nbtests], moycos_distri_hasard[nbtests], cosmoytaux_distri_hasard[nbtests];
     serie_expes(arg2, nbtests, nb, nbG, Ref, nbIt, nbC, TE, TEIt, nbA, TabtauxErparAnnot, sigmatauxEr, choix1, choix2, moymtauxErRef, moysigmatauxErRef, moymtauxconf, moymetric, moymetricconf, moycos_uniforme, moydistri_hasard, moycos_distri_hasard, cosmoytaux_distri_hasard);
-    write_res_series(arg2, arg1, nbtests, moymtauxErRef, moymetric);
+    write_res_series(arg2, arg1, nbtests, moymtauxErRef, moymetric, cosmoytaux_distri_hasard);
     return 0;
   }
 }
