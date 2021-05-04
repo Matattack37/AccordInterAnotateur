@@ -427,6 +427,48 @@ void unplusnbGgroupe(string metric, int nbG, int RefIni[], int nbIt, int nbC, in
   //printf("tauxEr=%.3f, tauxconf=%.3f, alphaconf=%.3f, cos_uniforme=%.3f\n",mtauxErRef,mtauxconf,alphaconf,cos_uniforme);
 }
 
+void unplusnbGgroupe2(int nbG, int RefIni[], int nbIt, int nbC, int TE[], float TEIt[][MAXCL], int nbA, float tauxErparAnnot, float sigmatauxEr, int choix1, int choix2, float& mtauxErRef, float& sigmatauxErRef, float& mtauxconf, float& accord1, float& accord2, float& accordconf1, float& accordconf2, float& cos_uniforme, float& distri_hasard, float& cos_distri_hasard, float& costaux_distri_hasard) {
+  //cout << "\n\n Annotations fictives\n";
+  float moyA = tauxErparAnnot * nbIt;
+  float sigmaA = sigmatauxEr * nbIt;
+  srand(time(NULL));
+  //création du groupe initial
+  int RefA[nbIt], TA[MAXIT][MAXA], TA1[MAXIT][MAXA];
+  //tables de confusion normalisées avec et sans la diagonale
+  float Tdist[MAXCL][MAXCL], Tdist2[MAXCL][MAXCL];
+  annotations1groupe(RefIni, nbIt, nbC, TE, TEIt, nbA, moyA, sigmaA, TA, RefA, choix1, choix2);
+  ajout_un(TA, nbIt, nbA, TA1); //classes numérotées de 1 à N
+  accord1 = alpha(TA1, nbIt, nbA, nbC);
+  int nblignes = nbA, vAnnot[MAXA][MAXIT];
+  alpha2kappa(nbIt, nbA, TA1, vAnnot);
+  accord2 = kappaAP(nblignes, nbC, nbA, vAnnot);
+  //cout << "alpha=" << alphaR << endl;
+  //alphaconf=calcul_alphaconf(TA,nbIt,nbA,nbC,Tdist,Tdist2);
+  accordconf1 = 0;
+  accordconf2 = 0;
+  //cout << "alphaconf=" << alphaconf << endl;
+  //cos_uniforme=cosinus_uniforme(Tdist2,nbC);//distance à une confusion uniforme entre classes
+  cos_uniforme = 0;
+  //distance_distri_item(TA,nbA,nbIt,nbC,distri_hasard,cos_distri_hasard);
+  costaux_distri_hasard = cosinus_taux_distri_hasard(TA, nbA, nbIt, nbC);
+  //float taux_desac=taux_desaccord_avec_ref(TA,RefA,nbA,nbIt);
+  //cout << "taux_moyen_de_desaccords_avec la ref=" << taux_desac << endl;
+  //cout << "cosinus uniforme=" << cos_uniforme << endl;
+  //création de nbG groupes sur le même modèle ; on calcule les tauxerreurs à RefA : avec et sans confusion
+  mtauxErRef = 0;
+  sigmatauxErRef = 0;
+  mtauxconf = 0;
+  int Refg[nbIt], Tg[MAXIT][MAXA];
+  for (int g = 0; g < nbG; g++) {
+    annotations1groupe(RefIni, nbIt, nbC, TE, TEIt, nbA, moyA, sigmaA, Tg, Refg, choix1, choix2);
+    mtauxconf += tauxdiff2Refdist(RefA, Refg, nbIt, Tdist2);
+    mtauxErRef += tauxdiff2Ref(RefA, Refg, nbIt);
+  }
+  mtauxconf = mtauxconf / nbG;
+  mtauxErRef = mtauxErRef / nbG;
+  //printf("tauxEr=%.3f, tauxconf=%.3f, alphaconf=%.3f, cos_uniforme=%.3f\n",mtauxErRef,mtauxconf,alphaconf,cos_uniforme);
+}
+
 void nbfois_unplusnbGgroupe(string metric, int nb, int nbG, int RefIni[], int nbIt, int nbC, int TE[], float TEIt[][MAXCL], int nbA, float tauxErparAnnot, float sigmatauxEr, int choix1, int choix2, float& moymtauxErRef, float& moysigmatauxErRef, float& moymtauxconf, float& moymetric, float& moymetricconf, float& moycos_uniforme, float& moydistri_hasard, float& moycos_distri_hasard, float& cosmoytaux_distri_hasard) {
   float mtauxErRef, sigmatauxErRef, mtauxconf, accord, accordconf, cos_uniforme, distri_hasard, cos_distri_hasard, costaux_distri_hasard;
   moymtauxErRef = 0;
@@ -453,6 +495,44 @@ void nbfois_unplusnbGgroupe(string metric, int nb, int nbG, int RefIni[], int nb
   moymtauxconf = moymtauxconf / nb;
   moymetric = moymetric / nb;
   moymetricconf = moymetricconf / nb;
+  moycos_uniforme = moycos_uniforme / nb;
+  moydistri_hasard = moydistri_hasard / nb;
+  moycos_distri_hasard = moycos_distri_hasard / nb;
+  cosmoytaux_distri_hasard = cosmoytaux_distri_hasard / nb;
+}
+
+void nbfois_unplusnbGgroupe2(int nb, int nbG, int RefIni[], int nbIt, int nbC, int TE[], float TEIt[][MAXCL], int nbA, float tauxErparAnnot, float sigmatauxEr, int choix1, int choix2, float& moymtauxErRef, float& moysigmatauxErRef, float& moymtauxconf, float& moymetric1, float& moymetric2, float& moymetricconf1, float& moymetricconf2, float& moycos_uniforme, float& moydistri_hasard, float& moycos_distri_hasard, float& cosmoytaux_distri_hasard) {
+  float mtauxErRef, sigmatauxErRef, mtauxconf, accord1, accord2, accordconf1, accordconf2, cos_uniforme, distri_hasard, cos_distri_hasard, costaux_distri_hasard;
+  moymtauxErRef = 0;
+  moysigmatauxErRef = 0;
+  moymtauxconf = 0;
+  moymetric1 = 0;
+  moymetric2 = 0;
+  moymetricconf1 = 0;
+  moymetricconf2 = 0;
+  moydistri_hasard = 0;
+  moycos_distri_hasard = 0;
+  for (int i = 0; i < nb; i++) {
+    //cout << "\n unplusnbGgroupe, i=" << i << endl;
+    unplusnbGgroupe2(nbG, RefIni, nbIt, nbC, TE, TEIt, nbA, tauxErparAnnot, sigmatauxEr, choix1, choix2, mtauxErRef, sigmatauxErRef, mtauxconf, accord1, accord2, accordconf1, accordconf2, cos_uniforme, distri_hasard, cos_distri_hasard, costaux_distri_hasard);
+    moymtauxErRef += mtauxErRef;
+    moysigmatauxErRef += 0;
+    moymtauxconf += mtauxconf;
+    moymetric1 += accord1;
+    moymetric2 += accord2;
+    moymetricconf1 += accordconf1;
+    moymetricconf2 += accordconf2;
+    moycos_uniforme += cos_uniforme;
+    moydistri_hasard += distri_hasard;
+    moycos_distri_hasard += cos_distri_hasard;
+    cosmoytaux_distri_hasard += costaux_distri_hasard;
+  }
+  moymtauxErRef = moymtauxErRef / nb;
+  moymtauxconf = moymtauxconf / nb;
+  moymetric1 = moymetric1 / nb;
+  moymetric2 = moymetric2 / nb;
+  moymetricconf1 = moymetricconf1 / nb;
+  moymetricconf2 = moymetricconf2 / nb;
   moycos_uniforme = moycos_uniforme / nb;
   moydistri_hasard = moydistri_hasard / nb;
   moycos_distri_hasard = moycos_distri_hasard / nb;
@@ -496,6 +576,13 @@ void affiche_res_series(string metric, int nbval, float tauxErparAnnot[], float 
     printf("%.4f)\n",moymtauxErRef[nbval-1]/moymtauxconf[nbval-1]);*/
 }
 
+void affiche_res_series2(int nbval, float tauxErparAnnot[], float moymtauxErRef[], float moysigmatauxErRef[], float moymtauxconf[], float moymetric1[], float moymetric2[], float moymetricconf1[], float moymetricconf2[], float moycos_uniforme[], float moydistri_hasard[], float moycos_distri_hasard[], float cosmoytaux_distri_hasard[]) {
+  affichage_ligne_R(nbval, "alpha              ", moymetric1);
+  affichage_ligne_R(nbval, "kappa              ", moymetric2);
+  affichage_ligne_R(nbval, "taux               ", moymtauxErRef);
+  affichage_ligne_R(nbval, "costauxitem_hasard ", cosmoytaux_distri_hasard);
+}
+
 void serie_expes(string metric, int nbval, int nb, int nbG, int RefIni[], int nbIt, int nbC, int TE[], float TEIt[][MAXCL], int nbA, float tauxErparAnnot[], float sigmatauxEr, int choix1, int choix2, float moymtauxErRef[], float moysigmatauxErRef[], float moymtauxconf[], float moymetric[], float moymetricconf[], float moycos_uniforme[], float moydistri_hasard[], float moycos_distri_hasard[], float cosmoytaux_distri_hasard[]) {
   for (int i = 0; i < nbval; i++) {
     //for (int i=0;i<nbval;i++) {
@@ -503,6 +590,14 @@ void serie_expes(string metric, int nbval, int nb, int nbG, int RefIni[], int nb
     nbfois_unplusnbGgroupe(metric, nb, nbG, RefIni, nbIt, nbC, TE, TEIt, nbA, tauxErparAnnot[i], sigmatauxEr, choix1, choix2, moymtauxErRef[i], moysigmatauxErRef[i], moymtauxconf[i], moymetric[i], moymetricconf[i], moycos_uniforme[i], moydistri_hasard[i], moycos_distri_hasard[i], cosmoytaux_distri_hasard[i]);
   }
   affiche_res_series(metric, nbval, tauxErparAnnot, moymtauxErRef, moysigmatauxErRef, moymtauxconf, moymetric, moymetricconf, moycos_uniforme, moydistri_hasard, moycos_distri_hasard, cosmoytaux_distri_hasard);
+}
+
+void serie_expes2(int nbval, int nb, int nbG, int RefIni[], int nbIt, int nbC, int TE[], float TEIt[][MAXCL], int nbA, float tauxErparAnnot[], float sigmatauxEr, int choix1, int choix2, float moymtauxErRef[], float moysigmatauxErRef[], float moymtauxconf[], float moymetric1[], float moymetric2[], float moymetricconf1[], float moymetricconf2[], float moycos_uniforme[], float moydistri_hasard[], float moycos_distri_hasard[], float cosmoytaux_distri_hasard[]) {
+  for (int i = 0; i < nbval; i++) {
+    cout << "test = " << i << endl;
+    nbfois_unplusnbGgroupe2(nb, nbG, RefIni, nbIt, nbC, TE, TEIt, nbA, tauxErparAnnot[i], sigmatauxEr, choix1, choix2, moymtauxErRef[i], moysigmatauxErRef[i], moymtauxconf[i], moymetric1[i], moymetric2[i], moymetricconf1[i], moymetricconf2[i], moycos_uniforme[i], moydistri_hasard[i], moycos_distri_hasard[i], cosmoytaux_distri_hasard[i]);
+  }
+  affiche_res_series2(nbval, tauxErparAnnot, moymtauxErRef, moysigmatauxErRef, moymtauxconf, moymetric1, moymetric2, moymetricconf1, moymetricconf2, moycos_uniforme, moydistri_hasard, moycos_distri_hasard, cosmoytaux_distri_hasard);
 }
 
 int main(int n, char* param[]) {
@@ -577,9 +672,18 @@ int main(int n, char* param[]) {
       //int nbtests=1;
       // fin pour tester
       //float TabtauxErparAnnot[12]={0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.6,0.7};
-      float moymtauxErRef[nbtests], moysigmatauxErRef[nbtests], moymtauxconf[nbtests], moymetric[nbtests], moymetricconf[nbtests], moycos_uniforme[nbtests], moydistri_hasard[nbtests], moycos_distri_hasard[nbtests], cosmoytaux_distri_hasard[nbtests];
-      serie_expes(arg2, nbtests, nb, nbG, Ref, nbIt, nbC, TE, TEIt, nbA, TabtauxErparAnnot, sigmatauxEr, choix1, choix2, moymtauxErRef, moysigmatauxErRef, moymtauxconf, moymetric, moymetricconf, moycos_uniforme, moydistri_hasard, moycos_distri_hasard, cosmoytaux_distri_hasard);
-      write_res_series(arg2, corpus[c], nbtests, moymtauxErRef, moymetric, cosmoytaux_distri_hasard);
+      float moymtauxErRef[nbtests], moysigmatauxErRef[nbtests], moymtauxconf[nbtests], moycos_uniforme[nbtests], moydistri_hasard[nbtests], moycos_distri_hasard[nbtests], cosmoytaux_distri_hasard[nbtests];
+      if (arg2 == "all") {
+        float moymetric1[nbtests], moymetricconf1[nbtests], moymetric2[nbtests], moymetricconf2[nbtests];
+        serie_expes2(nbtests, nb, nbG, Ref, nbIt, nbC, TE, TEIt, nbA, TabtauxErparAnnot, sigmatauxEr, choix1, choix2, moymtauxErRef, moysigmatauxErRef, moymtauxconf, moymetric1, moymetric2, moymetricconf1, moymetricconf2, moycos_uniforme, moydistri_hasard, moycos_distri_hasard, cosmoytaux_distri_hasard);
+        write_res_series("alpha", corpus[c], nbtests, moymtauxErRef, moymetric1, cosmoytaux_distri_hasard);
+        write_res_series("kappa", corpus[c], nbtests, moymtauxErRef, moymetric2, cosmoytaux_distri_hasard);
+      }
+      else {
+        float moymetric[nbtests], moymetricconf[nbtests];
+        serie_expes(arg2, nbtests, nb, nbG, Ref, nbIt, nbC, TE, TEIt, nbA, TabtauxErparAnnot, sigmatauxEr, choix1, choix2, moymtauxErRef, moysigmatauxErRef, moymtauxconf, moymetric, moymetricconf, moycos_uniforme, moydistri_hasard, moycos_distri_hasard, cosmoytaux_distri_hasard);
+        write_res_series(arg2, arg1, nbtests, moymtauxErRef, moymetric, cosmoytaux_distri_hasard);
+      }
     }
     return 0;
   }
@@ -638,9 +742,18 @@ int main(int n, char* param[]) {
     //int nbtests=1;
     // fin pour tester
     //float TabtauxErparAnnot[12]={0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.6,0.7};
-    float moymtauxErRef[nbtests], moysigmatauxErRef[nbtests], moymtauxconf[nbtests], moymetric[nbtests], moymetricconf[nbtests], moycos_uniforme[nbtests], moydistri_hasard[nbtests], moycos_distri_hasard[nbtests], cosmoytaux_distri_hasard[nbtests];
-    serie_expes(arg2, nbtests, nb, nbG, Ref, nbIt, nbC, TE, TEIt, nbA, TabtauxErparAnnot, sigmatauxEr, choix1, choix2, moymtauxErRef, moysigmatauxErRef, moymtauxconf, moymetric, moymetricconf, moycos_uniforme, moydistri_hasard, moycos_distri_hasard, cosmoytaux_distri_hasard);
-    write_res_series(arg2, arg1, nbtests, moymtauxErRef, moymetric, cosmoytaux_distri_hasard);
+    float moymtauxErRef[nbtests], moysigmatauxErRef[nbtests], moymtauxconf[nbtests], moycos_uniforme[nbtests], moydistri_hasard[nbtests], moycos_distri_hasard[nbtests], cosmoytaux_distri_hasard[nbtests];
+    if (arg2 == "all") {
+      float moymetric1[nbtests], moymetricconf1[nbtests], moymetric2[nbtests], moymetricconf2[nbtests];
+      serie_expes2(nbtests, nb, nbG, Ref, nbIt, nbC, TE, TEIt, nbA, TabtauxErparAnnot, sigmatauxEr, choix1, choix2, moymtauxErRef, moysigmatauxErRef, moymtauxconf, moymetric1, moymetric2, moymetricconf1, moymetricconf2, moycos_uniforme, moydistri_hasard, moycos_distri_hasard, cosmoytaux_distri_hasard);
+      write_res_series("alpha", arg1, nbtests, moymtauxErRef, moymetric1, cosmoytaux_distri_hasard);
+      write_res_series("kappa", arg1, nbtests, moymtauxErRef, moymetric2, cosmoytaux_distri_hasard);
+    }
+    else {
+      float moymetric[nbtests], moymetricconf[nbtests];
+      serie_expes(arg2, nbtests, nb, nbG, Ref, nbIt, nbC, TE, TEIt, nbA, TabtauxErparAnnot, sigmatauxEr, choix1, choix2, moymtauxErRef, moysigmatauxErRef, moymtauxconf, moymetric, moymetricconf, moycos_uniforme, moydistri_hasard, moycos_distri_hasard, cosmoytaux_distri_hasard);
+      write_res_series(arg2, arg1, nbtests, moymtauxErRef, moymetric, cosmoytaux_distri_hasard);
+    }
     return 0;
   }
 }
